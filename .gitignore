@@ -1,0 +1,10 @@
+target/
+*.iml
+lib_managed/
+project/boot/
+project/build/target/
+.idea/
+.DS_Store
+.project
+.classpath
+out/
