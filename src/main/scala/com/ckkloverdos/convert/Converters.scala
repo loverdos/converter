@@ -56,6 +56,8 @@ class Converters(selector: ConverterSelectionStrategy) extends CanConvert {
   }
 
   def convertValueToInt[S: Manifest](sourceValue: S): Maybe[Int] = convertValue(sourceValue, Manifest.Int)
+
   def convertValueToLong[S: Manifest](sourceValue: S): Maybe[Long] = convertValue(sourceValue, Manifest.Long)
+
   def convertValueToBoolean[S: Manifest](sourceValue: S): Maybe[Boolean] = convertValue(sourceValue, Manifest.Boolean)
 }
