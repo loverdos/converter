@@ -25,11 +25,20 @@ import com.ckkloverdos.maybe.Maybe
 trait Converter[S, T] extends CanConvert {
   def sourceType: Manifest[S]
   def targetType: Manifest[T]
+  def isStrictSource: Boolean
 
-  def convert(sourceValue: S): Maybe[T]
+  /**
+   * Convert or throw an exception.
+   *
+   * This is a low-level function.
+   */
+  @throws(classOf[ConverterException])
+  def convertEx(sourceValue: S): T
+
+  def convert(sourceValue: S): Maybe[T] = Maybe(convertEx(sourceValue))
+
   def apply(sourceValue: S): Maybe[T] = convert(sourceValue)
-
-  def toFunction: Function1[S,  Maybe[T]] = (s) => convert(s)
+  def toFunction: S => Maybe[T] = (s) => convert(s)
 }
 
 /**

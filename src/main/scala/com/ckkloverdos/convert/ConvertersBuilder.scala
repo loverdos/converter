@@ -17,9 +17,10 @@
 package com.ckkloverdos.convert
 
 import java.util.concurrent.locks.ReentrantLock
-import Converter.{AnyConverter, AnyManifest}
+import Converter.{AnyConverter}
 import ConverterHelpers.{lock}
 import org.slf4j.LoggerFactory
+import select.{ConverterSelectionStrategy, CachedMostSpecificTypeFirstSelection}
 
 /**
  * A builder for converter registries.
@@ -66,5 +67,9 @@ class ConvertersBuilder {
     this
   }
 
-  def build: Converters = new ConvertersImpl(_converters)
+  def build: Converters =
+    buildWithStrategy(new CachedMostSpecificTypeFirstSelection(_))
+
+  def buildWithStrategy(f: (Traversable[AnyConverter]) => ConverterSelectionStrategy): Converters =
+    new Converters(f(_converters))
 }

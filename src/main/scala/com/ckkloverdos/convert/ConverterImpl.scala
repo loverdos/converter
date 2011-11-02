@@ -16,8 +16,6 @@
 
 package com.ckkloverdos.convert
 
-import com.ckkloverdos.maybe.Maybe
-import com.ckkloverdos.maybe.Maybe._
 import Converter.{AnyManifest}
 /**
  * 
@@ -26,12 +24,12 @@ import Converter.{AnyManifest}
 class ConverterImpl[S: Manifest, T: Manifest](
     val sourceType: Manifest[S],
     val targetType: Manifest[T],
-    val strictSource: Boolean,
+    val isStrictSource: Boolean,
     val function: S => T)
   extends Converter[S, T] {
 
   def canConvertType(sm: AnyManifest, tm: AnyManifest) = {
-    if(strictSource)
+    if(isStrictSource)
       canConvertStrictSource(sm, tm)
     else
       canConvertNonStrictSource(sm, tm)
@@ -51,8 +49,8 @@ class ConverterImpl[S: Manifest, T: Manifest](
     sourceType.erasure.isAssignableFrom(from) && targetType.erasure.equals(to)
   }
 
-  def convert(sourceValue: S): Maybe[T] = Maybe(function(sourceValue))
+  def convertEx(sourceValue: S) = function(sourceValue)
 
   override def toString() =
-    "Converter(" + List(sourceType, targetType, strictSource, function).mkString(",") + ")"
+    "Converter(" + List(sourceType, targetType, isStrictSource, function).mkString(",") + ")"
 }

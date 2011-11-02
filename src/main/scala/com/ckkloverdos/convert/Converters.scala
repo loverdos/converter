@@ -16,21 +16,46 @@
 
 package com.ckkloverdos.convert
 
-import com.ckkloverdos.maybe.Maybe
 import Converter.AnyConverter
+import select.ConverterSelectionStrategy
+import com.ckkloverdos.maybe._
 
 /**
  * An immutable registry for converters.
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-trait Converters extends CanConvert {
-  def converters: Vector[AnyConverter]
+class Converters(selector: ConverterSelectionStrategy) extends CanConvert {
+  def canConvertType(sm: Converter.AnyManifest, tm: Converter.AnyManifest) = {
+    selector.find(sm, tm).isJust
+  }
 
-  def converterFor[S: Manifest, T: Manifest](sm: Manifest[S], tm: Manifest[T], cacheResult: Boolean = true): Maybe[Converter[S, T]]
+  def findConverter[S: Manifest, T: Manifest](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter[S, T]] = {
+    selector.find(sm, tm).asInstanceOf[Maybe[Converter[S, T]]]
+  }
+
+  /**
+   * Converts a value or throws an exception if the value cannot be converted.
+   */
+  @throws(classOf[ConverterException])
+  def convertValueEx[S: Manifest, T: Manifest](sourceValue: S, tm: Manifest[T]): T = {
+    val sm = manifest[S]
+    findConverter(sm, tm) match {
+      case Just(cv) =>
+        cv.convertEx(sourceValue)
+      case NoVal =>
+        ConverterException("Could not find converter from %s -> %s for value %s", sm, tm, sourceValue)
+      case Failed(exception, explanation) =>
+        ConverterException(exception, "Error [%s] trying to find converter from %s -> %s for value %s", explanation, sm, tm, sourceValue)
+    }
+  }
 
   def convertValue[S: Manifest, T: Manifest](sourceValue: S, tm: Manifest[T]): Maybe[T] = {
-    (for(converter <- converterFor(manifest[S], tm))
+    (for(converter <- findConverter(manifest[S], tm))
        yield converter.convert(sourceValue)).flatten1
   }
+
+  def convertValueToInt[S: Manifest](sourceValue: S): Maybe[Int] = convertValue(sourceValue, Manifest.Int)
+  def convertValueToLong[S: Manifest](sourceValue: S): Maybe[Long] = convertValue(sourceValue, Manifest.Long)
+  def convertValueToBoolean[S: Manifest](sourceValue: S): Maybe[Boolean] = convertValue(sourceValue, Manifest.Boolean)
 }
