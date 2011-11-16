@@ -55,13 +55,14 @@ class Project(info: ProjectInfo) extends DefaultProject(info) {
         <developer>
           <id>loverdos</id>
           <name>Christos KK Loverdos</name>
+          <email>loverdos@gmail.com</email>
         </developer>
       </developers>;
 
   val lib_slf4j           = "org.slf4j"       % "slf4j-api"       % "1.6.1"        % "compile"  withSources()
   val lib_logback_simple  = "ch.qos.logback"  % "logback-classic" % "0.9.28"       % "test"     withSources()
   val lib_junit_interface = "com.novocode"    % "junit-interface" % "0.7"          % "test"
-  val lib_maybe           = "com.ckkloverdos" %% "maybe"     % "0.2.1"        % "compile"  withSources()
+  val lib_maybe           = "com.ckkloverdos" %% "maybe"     % "0.3.0"        % "compile"  withSources()
 
   override def repositories =
     if (version.toString.endsWith("-SNAPSHOT")) super.repositories + ScalaToolsSnapshots

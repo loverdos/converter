@@ -16,7 +16,6 @@
 
 package com.ckkloverdos.convert
 
-import Converter.AnyConverter
 import select.ConverterSelectionStrategy
 import com.ckkloverdos.maybe._
 

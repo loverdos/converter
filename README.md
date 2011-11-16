@@ -3,4 +3,4 @@ converter
 
 Use this library to convert value between different types.
 
-Not released yet.
+Latest release is `"com.ckkloverdos" % "converter_2.9.1" % "0.2.0"`
