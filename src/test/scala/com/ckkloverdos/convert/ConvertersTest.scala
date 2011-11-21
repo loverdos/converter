@@ -18,7 +18,7 @@ package com.ckkloverdos.convert
 
 import org.junit.Assert
 import org.junit.Test
-import Assert.{assertEquals, assertTrue}
+import Assert.{assertEquals, assertTrue, fail}
 import com.ckkloverdos.maybe.{Maybe, Failed, Just, NoVal}
 import java.nio.CharBuffer
 
@@ -70,5 +70,15 @@ class ConvertersTest {
 
     assertEquals(Just(1), _value1)
     assertEquals(Just(555), _value555)
+  }
+
+  @Test
+  def testConversionException: Unit = {
+    try {
+      converters.convertValueEx(1, manifest[ConvertersTest])
+      fail("Should have failed for conversion of Int -> %s".format(manifest[ConvertersTest].erasure.getName))
+    } catch {
+      case _: Exception =>
+    }
   }
 }

@@ -29,7 +29,7 @@ class Converters(selector: ConverterSelectionStrategy) extends CanConvert {
     selector.find(sm, tm).isJust
   }
 
-  def findConverter[S: Manifest, T: Manifest](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter[S, T]] = {
+  def findConverter[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter[S, T]] = {
     selector.find(sm, tm).asInstanceOf[Maybe[Converter[S, T]]]
   }
 
@@ -37,7 +37,7 @@ class Converters(selector: ConverterSelectionStrategy) extends CanConvert {
    * Converts a value or throws an exception if the value cannot be converted.
    */
   @throws(classOf[ConverterException])
-  def convertValueEx[S: Manifest, T: Manifest](sourceValue: S, tm: Manifest[T]): T = {
+  def convertValueEx[S: Manifest, T](sourceValue: S, tm: Manifest[T]): T = {
     val sm = manifest[S]
     findConverter(sm, tm) match {
       case Just(cv) =>
@@ -49,14 +49,19 @@ class Converters(selector: ConverterSelectionStrategy) extends CanConvert {
     }
   }
 
-  def convertValue[S: Manifest, T: Manifest](sourceValue: S, tm: Manifest[T]): Maybe[T] = {
-    (for(converter <- findConverter(manifest[S], tm))
-       yield converter.convert(sourceValue)).flatten1
+  def convertValue[S: Manifest, T](sourceValue: S, tm: Manifest[T]): Maybe[T] = {
+    findConverter(manifest[S], tm) flatMap (_.convert(sourceValue))
   }
 
-  def convertValueToInt[S: Manifest](sourceValue: S): Maybe[Int] = convertValue(sourceValue, Manifest.Int)
-
-  def convertValueToLong[S: Manifest](sourceValue: S): Maybe[Long] = convertValue(sourceValue, Manifest.Long)
-
+  def convertValueToByte[S: Manifest](sourceValue: S): Maybe[Byte] = convertValue(sourceValue, Manifest.Byte)
+  def convertValueToShort[S: Manifest](sourceValue: S): Maybe[Short] = convertValue(sourceValue, Manifest.Short)
   def convertValueToBoolean[S: Manifest](sourceValue: S): Maybe[Boolean] = convertValue(sourceValue, Manifest.Boolean)
+  def convertValueToInt[S: Manifest](sourceValue: S): Maybe[Int] = convertValue(sourceValue, Manifest.Int)
+  def convertValueToLong[S: Manifest](sourceValue: S): Maybe[Long] = convertValue(sourceValue, Manifest.Long)
+  def convertValueToFloat[S: Manifest](sourceValue: S): Maybe[Float] = convertValue(sourceValue, Manifest.Float)
+  def convertValueToDouble[S: Manifest](sourceValue: S): Maybe[Double] = convertValue(sourceValue, Manifest.Double)
+}
+
+object Converters {
+  val DefaultConverters = new StdConvertersBuilder().registerDefaultConversions().build
 }

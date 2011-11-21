@@ -57,7 +57,9 @@ class ConvertersBuilder {
     this
   }
 
-  def register[S: Manifest, T: Manifest](sm: Manifest[S], tm: Manifest[T], ss: Boolean = true)(f: (S) => T): this.type = {
+  def register[S, T](sm: Manifest[S], tm: Manifest[T], ss: Boolean = true)(f: (S) => T): this.type = {
+    implicit val ism = sm
+    implicit val itm = tm
     this += Converter.newConverter[S, T](ss)(f)
     this
   }
