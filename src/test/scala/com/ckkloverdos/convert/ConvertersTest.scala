@@ -19,7 +19,7 @@ package com.ckkloverdos.convert
 import org.junit.Assert
 import org.junit.Test
 import Assert.{assertEquals, assertTrue, fail}
-import com.ckkloverdos.maybe.{Maybe, Failed, Just, NoVal}
+import com.ckkloverdos.maybe.{Maybe, Just, NoVal}
 import java.nio.CharBuffer
 
 /**
@@ -83,7 +83,7 @@ class ConvertersTest {
     // All CharSequences go to Int via this one
     builder.register[CharSequence, Int](false) { _.toString.toInt }
     // But Strings (though they are CharSequences) are handled differently
-    builder.register[String, Int](true) { cb => 555 /* always return 555 for charbuffers */}
+    builder.register[String, Int](true) { cb => 555 /* always return 555 for strings */}
 
     val converters = builder.build
     val _value1   = converters.convertToInt(CharBuffer.wrap("1"))
