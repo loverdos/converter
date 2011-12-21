@@ -17,7 +17,6 @@
 package com.ckkloverdos.convert
 
 import java.util.concurrent.locks.ReentrantLock
-import Converter.{AnyConverter}
 import ConverterHelpers.{lock}
 import org.slf4j.LoggerFactory
 import select.{ConverterSelectionStrategy, CachedMostSpecificTypeFirstSelection}
@@ -32,9 +31,9 @@ import select.{ConverterSelectionStrategy, CachedMostSpecificTypeFirstSelection}
 class ConvertersBuilder {
   protected val logger = LoggerFactory.getLogger(getClass)
   private[this] val _lock = new ReentrantLock()
-  private[this] var _converters: Vector[AnyConverter] = Vector()
+  private[this] var _converters: Vector[Converter] = Vector()
 
-  def registerConverter(converter: AnyConverter): this.type = {
+  def registerConverter(converter: Converter): this.type = {
     lock(_lock) {
       logger.trace("Adding converter %s".format(converter))
       _converters = converter +: _converters
@@ -42,36 +41,34 @@ class ConvertersBuilder {
     this
   }
 
-  def +=[S: Manifest, T: Manifest](cw: Converter[S, T]): this.type = {
+  def +=[S: Manifest, T: Manifest](cw: Converter): this.type = {
     this.registerConverter(cw)
   }
 
-  def ++=(cw1: AnyConverter, cw2: AnyConverter, cwSeq: AnyConverter*): this.type = {
+  def ++=(cw1: Converter, cw2: Converter, cwSeq: Converter*): this.type = {
     this += cw1 += cw2
     for(cw <- cwSeq) { this += cw }
     this
   }
 
-  def ++=(cwTrav: Traversable[AnyConverter]): this.type = {
+  def ++=(cwTrav: Traversable[Converter]): this.type = {
     for(cw <- cwTrav) { this += cw }
     this
   }
 
-  def register[S, T](sm: Manifest[S], tm: Manifest[T], ss: Boolean = true)(f: (S) => T): this.type = {
-    implicit val ism = sm
-    implicit val itm = tm
-    this += Converter.newConverter[S, T](ss)(f)
+  def registerST[S, T](sm: Manifest[S], tm: Manifest[T], strictSource: Boolean = true)(f: (S) => T): this.type = {
+    val converter = Converters.newSourceTargetConverter(sm, tm, strictSource)(f)
+    this += converter
     this
   }
 
-  def register[S: Manifest, T: Manifest](ss: Boolean)(f: (S) => T): this.type = {
-    this += Converter.newConverter[S, T](ss)(f)
-    this
+  def register[S: Manifest, T: Manifest](strictSource: Boolean)(f: (S) => T): this.type = {
+    registerST(manifest[S], manifest[T], strictSource)(f)
   }
 
   def build: Converters =
     buildWithStrategy(new CachedMostSpecificTypeFirstSelection(_))
 
-  def buildWithStrategy(f: (Traversable[AnyConverter]) => ConverterSelectionStrategy): Converters =
+  def buildWithStrategy(f: (Traversable[Converter]) => ConverterSelectionStrategy): Converters =
     new Converters(f(_converters))
 }

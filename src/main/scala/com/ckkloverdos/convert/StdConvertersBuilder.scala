@@ -24,6 +24,7 @@ class StdConvertersBuilder extends ConvertersBuilder {
   def registerDefaultConversions(): this.type = {
     registerNumberConversions()
     registerStringNumberConversions()
+    registerStringBooleanDefaultConversions()
 
     this
   }
@@ -48,6 +49,25 @@ class StdConvertersBuilder extends ConvertersBuilder {
     register[CharSequence, Long]   (false) (_.toString.toLong)
     register[CharSequence, Float]  (false) (_.toString.toFloat)
     register[CharSequence, Double] (false) (_.toString.toDouble)
+
+    this
+  }
+  
+  def registerStringBooleanDefaultConversions(): this.type = {
+    register[CharSequence, Boolean](false) { cs =>
+      cs match {
+        case null => false
+        case cs => cs.toString.trim.toLowerCase match {
+          case "true"  => true
+          case "on"    => true
+          case "1"     => true
+          case "false" => false
+          case "off"   => false
+          case "0"     => false
+          case _       => throw new IllegalArgumentException("String value '%s' cannot be converted to Boolean".format(cs))
+        }
+      }
+    }
 
     this
   }

@@ -31,28 +31,49 @@ class ConvertersTest {
 
   @Test
   def testNoDoubleToInt: Unit = {
-    val value = converters.convertValue(1.0, Manifest.Int)
-    assertEquals(NoVal, value)
+    val value = converters.convert[Int](1.0)
+    assertTrue(value.isFailed)
+  }
+
+  @Test
+  def testIdentityForInt: Unit = {
+    val value = 1
+    assertEquals(Just(value), converters.convertToInt(value))
   }
 
   @Test
   def testStringToDouble: Unit = {
     val from = "0.1"
-    val value = converters.convertValue(from, Manifest.Double)
-    assertEquals(Just(0.1), value)
+    val to   = 0.1
+    assertEquals(Just(to), converters.convert[Double](from))
+    assertEquals(Just(to), converters.convertToDouble(from))
   }
 
   @Test
   def testNoStringToInt: Unit = {
     val from = "0.1"
-    val value = converters.convertValue(from, Manifest.Int)
+    val value = converters.convert[Int](from)
     assertTrue(value.isFailed)
   }
-  
+
+  @Test
+  def testStringToInt: Unit = {
+    val from: CharSequence = "2011"
+    val value = converters.convertToInt(from)
+    assertEquals(Just(from.toString.toInt), value)
+  }
+
+  @Test
+  def testNoStringToInt2: Unit = {
+    val from: CharSequence = "2011 "
+    val value = converters.convertToInt(from)
+    assertTrue(value.isFailed)
+  }
+
   @Test
   def testNullToNoVal: Unit = {
     val registry = new StdConvertersBuilder().register[AnyRef, Maybe[AnyRef]](true)((x) => Maybe(x)).build
-    val value = registry.convertValue(null, manifest[Maybe[AnyRef]])
+    val value = registry.convert[Maybe[AnyRef]](null)
     assertEquals(Just(NoVal), value)
   }
 
@@ -61,12 +82,12 @@ class ConvertersTest {
     val builder = new ConvertersBuilder
     // All CharSequences go to Int via this one
     builder.register[CharSequence, Int](false) { _.toString.toInt }
-    // But CharBuffers (though they are CharSequences) are handled differently
-    builder.register[CharBuffer, Int](true) { cb => 555 }
+    // But Strings (though they are CharSequences) are handled differently
+    builder.register[String, Int](true) { cb => 555 /* always return 555 for charbuffers */}
 
     val converters = builder.build
-    val _value1   = converters.convertValueToInt("1")
-    val _value555 = converters.convertValueToInt(CharBuffer.wrap("1"))
+    val _value1   = converters.convertToInt(CharBuffer.wrap("1"))
+    val _value555 = converters.convertToInt("1")
 
     assertEquals(Just(1), _value1)
     assertEquals(Just(555), _value555)
@@ -75,7 +96,7 @@ class ConvertersTest {
   @Test
   def testConversionException: Unit = {
     try {
-      converters.convertValueEx(1, manifest[ConvertersTest])
+      converters.convertEx[ConvertersTest](1)
       fail("Should have failed for conversion of Int -> %s".format(manifest[ConvertersTest].erasure.getName))
     } catch {
       case _: Exception =>

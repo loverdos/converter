@@ -22,34 +22,6 @@ import com.ckkloverdos.maybe.Maybe
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-trait Converter[S, T] extends CanConvert {
-  def sourceType: Manifest[S]
-  def targetType: Manifest[T]
+trait Converter extends ConverterBase {
   def isStrictSource: Boolean
-
-  /**
-   * Convert or throw an exception.
-   *
-   * This is a low-level function.
-   */
-  @throws(classOf[ConverterException])
-  def convertEx(sourceValue: S): T
-
-  def convert(sourceValue: S): Maybe[T] = Maybe(convertEx(sourceValue))
-
-  def apply(sourceValue: S): Maybe[T] = convert(sourceValue)
-  def toFunction: S => Maybe[T] = (s) => convert(s)
 }
-
-/**
- * @author Christos KK Loverdos <loverdos@gmail.com>.
- */
-object Converter {
-  type AnyConverter = Converter[_, _]
-  type AnyManifest  = Manifest[_]
-
-  def newConverter[S: Manifest, T: Manifest](strictSource: Boolean)(f: S => T): Converter[S, T] = {
-    new ConverterImpl(manifest[S], manifest[T], strictSource, f)
-  }
-}
-

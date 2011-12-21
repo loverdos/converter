@@ -17,8 +17,8 @@
 package com.ckkloverdos.convert
 package select
 
-import Converter.{AnyManifest, AnyConverter}
 import com.ckkloverdos.maybe.{NoVal, Just, Maybe}
+import org.slf4j.LoggerFactory
 
 /**
  * An algorithm that selects the appropriate converter.
@@ -28,21 +28,32 @@ import com.ckkloverdos.maybe.{NoVal, Just, Maybe}
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
 trait ConverterSelectionStrategy {
+  protected val logger = LoggerFactory.getLogger(getClass)
+
   def isCaching: Boolean
 
-  def shouldCache(sm: AnyManifest, tm: AnyManifest, cv: AnyConverter): Boolean = isCaching
+  def canConvertType[S: Manifest, T: Manifest]: Boolean = {
+    this.find(manifest[S], manifest[T]).isJust
+  }
 
-  def findCached(sm: AnyManifest, tm: AnyManifest): Maybe[AnyConverter]
+  def shouldCache(sm: Manifest[_], tm: Manifest[_], cv: Converter): Boolean = isCaching
 
-  def findNonCached(sm: AnyManifest, tm: AnyManifest): Maybe[AnyConverter]
+  def findCached[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter]
 
-  def find(sm: AnyManifest, tm: AnyManifest): Maybe[AnyConverter] = {
-    if(isCaching) {
-      findCached(sm, tm) match {
+  def findNonCached[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter]
+
+  def find[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter] = {
+//    logger.debug("find(%s, %s)".format(sm, tm))
+    if(sm == tm) {
+      val justIdentityConverter = Converters.justIdentityConverter
+//      logger.debug("Found %s".format(justIdentityConverter))
+      justIdentityConverter
+    } else if(isCaching) {
+      findCached[S, T](sm, tm) match {
         case j@Just(cv) =>
           j
         case NoVal =>
-          findNonCached(sm, tm) match {
+          findNonCached[S, T](sm, tm) match {
             case j@Just(cv) =>
               if(shouldCache(sm, tm, cv)) addToCache(sm, tm, cv)
               j
@@ -53,9 +64,9 @@ trait ConverterSelectionStrategy {
           failed
       }
     } else {
-      findNonCached(sm, tm)
+      findNonCached[S, T](sm, tm)
     }
   }
 
-  def addToCache(sm: AnyManifest, tm: AnyManifest, cv: AnyConverter): Unit
+  def addToCache(sm: Manifest[_], tm: Manifest[_], cv: Converter): Unit
 }
