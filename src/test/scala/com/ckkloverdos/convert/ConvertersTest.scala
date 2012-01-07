@@ -106,10 +106,12 @@ class ConvertersTest {
   @Test
   def testPrimitiveArray: Unit = {
     val convertersB = new StdConvertersBuilder()
-    convertersB.register[Array[Int], Long](true) { array ⇒ (0 /: array)(_+_)}
+    convertersB.register[Array[Int], Int](true) { array ⇒ (0 /: array)(_+_)}
     val converters = convertersB.build
-    val sum = converters.convertEx[Long](Array(1, 2, 3))
+    val theArray: Array[Int] = Array(1, 2, 3)
+    val theArraySum: Int = theArray sum
+    val convertedSum = converters.convertEx[Int](theArray)
     // by the way, also test the sum, though we shouldn't for several reasons
-    assertEquals((1 + 2 + 3), sum)
+    assertEquals(theArraySum, convertedSum)
   }
 }
