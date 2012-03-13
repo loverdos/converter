@@ -60,7 +60,7 @@ class Converters(selector: ConverterSelectionStrategy) extends ConverterBase {
         val errMsg = "Could not find converter %s -> %s for value %s".format(sm, tm, sourceValue)
 //        logger.error("Converters::convertEx:: " + errMsg)
         throw new ConverterException(errMsg)
-      case Failed(exception, explanation) =>
+      case Failed(exception) =>
         val errMsg = "Could not find converter %s -> %s for value %s".format(sm, tm, sourceValue)
 //        logger.error("Converters::convertEx:: " + errMsg)
         throw new ConverterException(errMsg, exception)
