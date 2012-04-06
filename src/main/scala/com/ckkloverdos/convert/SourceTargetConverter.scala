@@ -40,17 +40,21 @@ class SourceTargetConverter[SS, TT](
   }
 
   private[this] def canConvertStrictSource(sm: Manifest[_], tm: Manifest[_]) = {
-    val from = sm.erasure
-    val to = tm.erasure
-
-    sourceType.erasure.equals(from) && targetType.erasure.equals(to)
+    SourceTargetConverter.canConvertWithStrictSource(
+      sourceType,
+      targetType,
+      sm,
+      tm
+    )
   }
 
   private[this] def canConvertNonStrictSource(sm: Manifest[_], tm: Manifest[_]) = {
-    val from = sm.erasure
-    val to = tm.erasure
-
-    sourceType.erasure.isAssignableFrom(from) && targetType.erasure.equals(to)
+    SourceTargetConverter.canConvertWithNonStrictSource(
+      sourceType,
+      targetType,
+      sm,
+      tm
+    )
   }
 
 
@@ -70,7 +74,24 @@ class SourceTargetConverter[SS, TT](
     }
   }
 
-
   override def toString() =
     "STConverter(" + List(sourceType, targetType, isStrictSource, function).mkString(",") + ")"
+}
+
+object SourceTargetConverter {
+  def canConvertWithStrictSource(sourceType: Manifest[_],
+                                 targetType: Manifest[_],
+                                 givenSourceType: Manifest[_],
+                                 givenTargetType: Manifest[_]): Boolean = {
+
+    sourceType.erasure.equals(givenSourceType.erasure) && targetType.erasure.equals(givenTargetType.erasure)
+  }
+
+  def canConvertWithNonStrictSource(sourceType: Manifest[_],
+                                    targetType: Manifest[_],
+                                    givenSourceType: Manifest[_],
+                                    givenTargetType: Manifest[_]): Boolean = {
+
+      sourceType.erasure.isAssignableFrom(givenSourceType.erasure) && targetType.erasure.equals(givenTargetType.erasure)
+  }
 }
