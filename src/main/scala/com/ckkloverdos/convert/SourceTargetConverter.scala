@@ -17,7 +17,7 @@
 package com.ckkloverdos.convert
 
 /**
- * 
+ *
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
 class SourceTargetConverter[SS, TT](
@@ -84,7 +84,15 @@ object SourceTargetConverter {
                                  givenSourceType: Manifest[_],
                                  givenTargetType: Manifest[_]): Boolean = {
 
-    sourceType.erasure.equals(givenSourceType.erasure) && targetType.erasure.equals(givenTargetType.erasure)
+    canConvertWithStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
+  }
+
+  def canConvertWithStrictSource(sourceType: Class[_],
+                                 targetType: Class[_],
+                                 givenSourceType: Manifest[_],
+                                 givenTargetType: Manifest[_]): Boolean = {
+
+    sourceType.equals(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
 
   def canConvertWithNonStrictSource(sourceType: Manifest[_],
@@ -92,6 +100,14 @@ object SourceTargetConverter {
                                     givenSourceType: Manifest[_],
                                     givenTargetType: Manifest[_]): Boolean = {
 
-      sourceType.erasure.isAssignableFrom(givenSourceType.erasure) && targetType.erasure.equals(givenTargetType.erasure)
+    canConvertWithNonStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
+  }
+
+  def canConvertWithNonStrictSource(sourceType: Class[_],
+                                    targetType: Class[_],
+                                    givenSourceType: Manifest[_],
+                                    givenTargetType: Manifest[_]): Boolean = {
+
+    sourceType.isAssignableFrom(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
 }
