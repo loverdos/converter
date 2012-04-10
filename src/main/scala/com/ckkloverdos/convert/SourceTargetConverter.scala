@@ -79,35 +79,51 @@ class SourceTargetConverter[SS, TT](
 }
 
 object SourceTargetConverter {
-  def canConvertWithStrictSource(sourceType: Manifest[_],
-                                 targetType: Manifest[_],
-                                 givenSourceType: Manifest[_],
-                                 givenTargetType: Manifest[_]): Boolean = {
+  def canConvertWithStrictSource[SS, TT, S, T](sourceType: Manifest[SS],
+                                               targetType: Manifest[TT],
+                                               givenSourceType: Manifest[S],
+                                               givenTargetType: Manifest[T]): Boolean = {
 
     canConvertWithStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
   }
 
-  def canConvertWithStrictSource(sourceType: Class[_],
-                                 targetType: Class[_],
-                                 givenSourceType: Manifest[_],
-                                 givenTargetType: Manifest[_]): Boolean = {
+  def canConvertWithStrictSource[SS, TT, S, T](sourceType: Class[SS],
+                                               targetType: Class[TT],
+                                               givenSourceType: Manifest[S],
+                                               givenTargetType: Manifest[T]): Boolean = {
 
     sourceType.equals(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
 
-  def canConvertWithNonStrictSource(sourceType: Manifest[_],
-                                    targetType: Manifest[_],
-                                    givenSourceType: Manifest[_],
-                                    givenTargetType: Manifest[_]): Boolean = {
+  def canConvertWithNonStrictSource[SS, TT, S, T](sourceType: Manifest[SS],
+                                                  targetType: Manifest[TT],
+                                                  givenSourceType: Manifest[S],
+                                                  givenTargetType: Manifest[T]): Boolean = {
 
     canConvertWithNonStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
   }
 
-  def canConvertWithNonStrictSource(sourceType: Class[_],
-                                    targetType: Class[_],
-                                    givenSourceType: Manifest[_],
-                                    givenTargetType: Manifest[_]): Boolean = {
+  def canConvertWithNonStrictSource[SS, TT, S, T](sourceType: Class[SS],
+                                                  targetType: Class[TT],
+                                                  givenSourceType: Manifest[S],
+                                                  givenTargetType: Manifest[T]): Boolean = {
 
     sourceType.isAssignableFrom(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
+}
+
+abstract class StrictSourceConverterSkeleton[SS: Manifest, TT: Manifest]extends Converter {
+  final def canConvertType[S: Manifest, T: Manifest]: Boolean = {
+    SourceTargetConverter.canConvertWithStrictSource(manifest[SS], manifest[TT], manifest[S], manifest[T])
+  }
+
+  final def isStrictSource = true
+}
+
+abstract class NonStrictSourceConverterSkeleton[SS: Manifest, TT: Manifest]extends Converter {
+  final def canConvertType[S: Manifest, T: Manifest]: Boolean = {
+    SourceTargetConverter.canConvertWithNonStrictSource(manifest[SS], manifest[TT], manifest[S], manifest[T])
+  }
+
+  final def isStrictSource = false
 }
