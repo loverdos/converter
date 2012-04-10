@@ -20,7 +20,7 @@ package com.ckkloverdos.convert
  * 
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
-final class ConverterException(cause: Throwable, msg: String, args: Any*) extends Exception(msg.format(args: _*)) {
+final class ConverterException(cause: Throwable, msg: String, args: Any*) extends Exception(msg.format(args: _*), cause) {
   def this(msg: String, args: Any*) = this(null: Throwable, msg, args: _*)
 }
 
@@ -31,5 +31,5 @@ final class ConverterException(cause: Throwable, msg: String, args: Any*) extend
  */
 object ConverterException {
   def apply(msg: String, args: Any*): Nothing = throw new ConverterException(msg, args: _*)
-  def apply(cause: Throwable, msg: String, args: Any*): Nothing = throw new ConverterException(msg, args: _*)
+  def apply(cause: Throwable, msg: String, args: Any*): Nothing = throw new ConverterException(cause, msg, args: _*)
 }
