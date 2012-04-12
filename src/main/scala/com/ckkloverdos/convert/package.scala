@@ -27,13 +27,6 @@ package object convert {
   def erasureOf[T: Type]: Class[T] = typeOf[T].erasure.asInstanceOf[Class[T]]
 
   private[convert]
-  final class TypeWithErasure[T](tpe: Type[T]) {
-    def erasure: Class[T] = erasureOf(tpe)
-  }
-
-  implicit def enrichType[T: Type] = new TypeWithErasure(typeOf[T])
-
-  private[convert]
   def typeOfClass[T](clazz: Class[T]): Type[_ <: AnyRef] = {
     if(clazz.isArray) {
       Manifest.arrayType(typeOfClass(clazz.getComponentType))
