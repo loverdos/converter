@@ -25,19 +25,17 @@ package com.ckkloverdos.convert
 object IdentityConverter extends Converter {
   def isStrictSource = false
 
-  def canConvertType[S: Manifest, T: Manifest]: Boolean = {
-    val sm = manifest[S]
-    val tm = manifest[T]
-    sm == tm
+  def canConvertType[S: Type, T: Type]: Boolean = {
+    typeOf[S] == typeOf[T]
   }
 
   @throws(classOf[ConverterException])
-  def convertEx[T: Manifest](sourceValue: Any): T = {
-    val tm = manifest[T]
+  def convertEx[T: Type](sourceValue: Any): T = {
+    val tm = typeOf[T]
     try sourceValue.asInstanceOf[T]
     catch {
       case e: ClassCastException ⇒
-        ConverterException(e, "Unexpected failure for identity conversion %s -> %s for value %s".format(sourceValue.getClass, tm.erasure, sourceValue))
+        ConverterException(e, "Unexpected failure for identity conversion %s -> %s for value %s".format(sourceValue.getClass, erasureOf[T], sourceValue))
     }
   }
 

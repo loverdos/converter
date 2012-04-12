@@ -32,13 +32,13 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
 
   def isCaching = true
 
-  def addToCache(sm: Manifest[_], tm: Manifest[_], cv: Converter) = {
+  def addToCache(sm: Type[_], tm: Type[_], cv: Converter) = {
     lock(_lock) {
       _cache += ((sm, tm) -> Just(cv))
     }
   }
 
-  override def findCached[S, T](sm: Manifest[S], tm: Manifest[T]) = {
+  override def findCached[S, T](sm: Type[S], tm: Type[T]) = {
     _cache.get((sm, tm)) match {
       case Some(jcv) =>
 //        logger.debug("findCached(%s, %s) => %s".format(sm, tm, jcv))
@@ -49,7 +49,7 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
     }
   }
 
-  def findNonCached[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter] = {
+  def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
     _strictSourceConverters.find(_.get.canConvertType(sm, tm)) match {
       case Some(jcv) =>
 //        logger.debug("findNonCached(%s, %s) => STRICT: %s".format(sm, tm, jcv))

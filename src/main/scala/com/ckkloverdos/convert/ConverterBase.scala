@@ -27,13 +27,13 @@ import org.slf4j.LoggerFactory
 trait ConverterBase {
   protected val logger = LoggerFactory.getLogger(getClass)
   
-  def canConvertValueToType[S: Manifest, T: Manifest](sourceValue: S): Boolean =
+  def canConvertValueToType[S: Type, T: Type](sourceValue: S): Boolean =
     canConvertType[S, T]
 
-  def canConvertValueToValue[S: Manifest, T: Manifest](sourceValue: S, targetValue: T): Boolean =
+  def canConvertValueToValue[S: Type, T: Type](sourceValue: S, targetValue: T): Boolean =
     canConvertType[S, T]
 
-  def canConvertType[S: Manifest, T: Manifest]: Boolean
+  def canConvertType[S: Type, T: Type]: Boolean
 
   /**
    * Convert or throw an exception.
@@ -41,9 +41,9 @@ trait ConverterBase {
    * This is a low-level function.
    */
   @throws(classOf[ConverterException])
-  def convertEx[T: Manifest](sourceValue: Any): T
+  def convertEx[T: Type](sourceValue: Any): T
 
-  def convert[T: Manifest](sourceValue: Any): Maybe[T] = Maybe {
+  def convert[T: Type](sourceValue: Any): Maybe[T] = Maybe {
 //    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, sourceValue.getClass, manifest[T]))
     convertEx[T](sourceValue)
   }

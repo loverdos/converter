@@ -97,7 +97,7 @@ class ConvertersTest {
   def testConversionException: Unit = {
     try {
       converters.convertEx[ConvertersTest](1)
-      fail("Should have failed for conversion of Int -> %s".format(manifest[ConvertersTest].erasure.getName))
+      fail("Should have failed for conversion of Int -> %s".format(typeOf[ConvertersTest].erasure.getName))
     } catch {
       case _: Exception =>
     }

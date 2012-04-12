@@ -32,17 +32,17 @@ trait ConverterSelectionStrategy {
 
   def isCaching: Boolean
 
-  def canConvertType[S: Manifest, T: Manifest]: Boolean = {
-    this.find(manifest[S], manifest[T]).isJust
+  def canConvertType[S: Type, T: Type]: Boolean = {
+    this.find(typeOf[S], typeOf[T]).isJust
   }
 
-  def shouldCache(sm: Manifest[_], tm: Manifest[_], cv: Converter): Boolean = isCaching
+  def shouldCache(sm: Type[_], tm: Type[_], cv: Converter): Boolean = isCaching
 
-  def findCached[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter]
+  def findCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter]
 
-  def findNonCached[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter]
+  def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter]
 
-  def find[S, T](sm: Manifest[S], tm: Manifest[T]): Maybe[Converter] = {
+  def find[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
 //    logger.debug("find(%s, %s)".format(sm, tm))
     if(sm == tm) {
       val justIdentityConverter = Converters.justIdentityConverter
@@ -68,5 +68,5 @@ trait ConverterSelectionStrategy {
     }
   }
 
-  def addToCache(sm: Manifest[_], tm: Manifest[_], cv: Converter): Unit
+  def addToCache(sm: Type[_], tm: Type[_], cv: Converter): Unit
 }

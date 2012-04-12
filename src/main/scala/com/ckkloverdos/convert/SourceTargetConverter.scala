@@ -21,15 +21,15 @@ package com.ckkloverdos.convert
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
 class SourceTargetConverter[SS, TT](
-    val sourceType: Manifest[SS],
-    val targetType: Manifest[TT],
+    val sourceType: Type[SS],
+    val targetType: Type[TT],
     val isStrictSource: Boolean,
     val function: SS => TT)
   extends Converter {
 
-  def canConvertType[S: Manifest, T: Manifest]: Boolean = {
-    val sm = manifest[S]
-    val tm = manifest[T]
+  def canConvertType[S: Type, T: Type]: Boolean = {
+    val sm = typeOf[S]
+    val tm = typeOf[T]
 
 //    logger.debug("canConvertType(%s, %s), sourceType=%s, targetType=%s".format(sm, tm, sourceType, targetType))
 
@@ -39,7 +39,7 @@ class SourceTargetConverter[SS, TT](
       canConvertNonStrictSource(sm, tm)
   }
 
-  private[this] def canConvertStrictSource(sm: Manifest[_], tm: Manifest[_]) = {
+  private[this] def canConvertStrictSource(sm: Type[_], tm: Type[_]) = {
     SourceTargetConverter.canConvertWithStrictSource(
       sourceType,
       targetType,
@@ -48,7 +48,7 @@ class SourceTargetConverter[SS, TT](
     )
   }
 
-  private[this] def canConvertNonStrictSource(sm: Manifest[_], tm: Manifest[_]) = {
+  private[this] def canConvertNonStrictSource(sm: Type[_], tm: Type[_]) = {
     SourceTargetConverter.canConvertWithNonStrictSource(
       sourceType,
       targetType,
@@ -59,8 +59,8 @@ class SourceTargetConverter[SS, TT](
 
 
   @throws(classOf[ConverterException])
-  def convertEx[T: Manifest](sourceValue: Any): T = {
-    val tm = manifest[T]
+  def convertEx[T: Type](sourceValue: Any): T = {
+    val tm = typeOf[T]
     if(targetType != tm) {
       ConverterException("Unexpeced target type %s. It should have been %s".format(tm, targetType))
     }
@@ -79,50 +79,50 @@ class SourceTargetConverter[SS, TT](
 }
 
 object SourceTargetConverter {
-  def canConvertWithStrictSource[SS, TT, S, T](sourceType: Manifest[SS],
-                                               targetType: Manifest[TT],
-                                               givenSourceType: Manifest[S],
-                                               givenTargetType: Manifest[T]): Boolean = {
+  def canConvertWithStrictSource[SS, TT, S, T](sourceType: Type[SS],
+                                               targetType: Type[TT],
+                                               givenSourceType: Type[S],
+                                               givenTargetType: Type[T]): Boolean = {
 
     canConvertWithStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
   }
 
   def canConvertWithStrictSource[SS, TT, S, T](sourceType: Class[SS],
                                                targetType: Class[TT],
-                                               givenSourceType: Manifest[S],
-                                               givenTargetType: Manifest[T]): Boolean = {
+                                               givenSourceType: Type[S],
+                                               givenTargetType: Type[T]): Boolean = {
 
     sourceType.equals(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
 
-  def canConvertWithNonStrictSource[SS, TT, S, T](sourceType: Manifest[SS],
-                                                  targetType: Manifest[TT],
-                                                  givenSourceType: Manifest[S],
-                                                  givenTargetType: Manifest[T]): Boolean = {
+  def canConvertWithNonStrictSource[SS, TT, S, T](sourceType: Type[SS],
+                                                  targetType: Type[TT],
+                                                  givenSourceType: Type[S],
+                                                  givenTargetType: Type[T]): Boolean = {
 
     canConvertWithNonStrictSource(sourceType.erasure, targetType.erasure, givenSourceType, givenTargetType)
   }
 
   def canConvertWithNonStrictSource[SS, TT, S, T](sourceType: Class[SS],
                                                   targetType: Class[TT],
-                                                  givenSourceType: Manifest[S],
-                                                  givenTargetType: Manifest[T]): Boolean = {
+                                                  givenSourceType: Type[S],
+                                                  givenTargetType: Type[T]): Boolean = {
 
     sourceType.isAssignableFrom(givenSourceType.erasure) && targetType.equals(givenTargetType.erasure)
   }
 }
 
-abstract class StrictSourceConverterSkeleton[SS: Manifest, TT: Manifest]extends Converter {
-  final def canConvertType[S: Manifest, T: Manifest]: Boolean = {
-    SourceTargetConverter.canConvertWithStrictSource(manifest[SS], manifest[TT], manifest[S], manifest[T])
+abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type]extends Converter {
+  final def canConvertType[S: Type, T: Type]: Boolean = {
+    SourceTargetConverter.canConvertWithStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
   final def isStrictSource = true
 }
 
-abstract class NonStrictSourceConverterSkeleton[SS: Manifest, TT: Manifest]extends Converter {
-  final def canConvertType[S: Manifest, T: Manifest]: Boolean = {
-    SourceTargetConverter.canConvertWithNonStrictSource(manifest[SS], manifest[TT], manifest[S], manifest[T])
+abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type]extends Converter {
+  final def canConvertType[S: Type, T: Type]: Boolean = {
+    SourceTargetConverter.canConvertWithNonStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
   final def isStrictSource = false

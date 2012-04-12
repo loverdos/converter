@@ -41,7 +41,7 @@ class ConvertersBuilder {
     this
   }
 
-  def +=[S: Manifest, T: Manifest](cw: Converter): this.type = {
+  def +=[S: Type, T: Type](cw: Converter): this.type = {
     this.registerConverter(cw)
   }
 
@@ -56,14 +56,14 @@ class ConvertersBuilder {
     this
   }
 
-  def registerST[S, T](sm: Manifest[S], tm: Manifest[T], strictSource: Boolean = true)(f: (S) => T): this.type = {
+  def registerST[S, T](sm: Type[S], tm: Type[T], strictSource: Boolean = true)(f: (S) => T): this.type = {
     val converter = Converters.newSourceTargetConverter(sm, tm, strictSource)(f)
     this += converter
     this
   }
 
-  def register[S: Manifest, T: Manifest](strictSource: Boolean)(f: (S) => T): this.type = {
-    registerST(manifest[S], manifest[T], strictSource)(f)
+  def register[S: Type, T: Type](strictSource: Boolean)(f: (S) => T): this.type = {
+    registerST(typeOf[S], typeOf[T], strictSource)(f)
   }
 
   def build: Converters =
