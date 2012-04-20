@@ -66,13 +66,36 @@ class Converters(selector: ConverterSelectionStrategy) extends ConverterBase {
   }
 
   def convertToByte[S: Type](sourceValue: S): Maybe[Byte] = convert[Byte](sourceValue)
+
+  def convertToByteEx[S: Type](sourceValue: S): Byte = convertEx[Byte](sourceValue)
+
   def convertToBoolean[S: Type](sourceValue: S): Maybe[Boolean] = convert[Boolean](sourceValue)
+
+  def convertToBooleanEx[S: Type](sourceValue: S): Boolean = convertEx[Boolean](sourceValue)
+
   def convertToShort[S: Type](sourceValue: S): Maybe[Short] = convert[Short](sourceValue)
+
+  def convertToShortEx[S: Type](sourceValue: S): Short = convertEx[Short](sourceValue)
+
   def convertToChar[S: Type](sourceValue: S): Maybe[Char] = convert[Char](sourceValue)
+
+  def convertToCharEx[S: Type](sourceValue: S): Char = convertEx[Char](sourceValue)
+
   def convertToInt[S: Type](sourceValue: S): Maybe[Int] = convert[Int](sourceValue)
+
+  def convertToIntEx[S: Type](sourceValue: S): Int = convertEx[Int](sourceValue)
+
   def convertToLong[S: Type](sourceValue: S): Maybe[Long] = convert[Long](sourceValue)
+
+  def convertToLongEx[S: Type](sourceValue: S): Long = convertEx[Long](sourceValue)
+
   def convertToFloat[S: Type](sourceValue: S): Maybe[Float] = convert[Float](sourceValue)
+
+  def convertToFloatEx[S: Type](sourceValue: S): Float = convertEx[Float](sourceValue)
+
   def convertToDouble[S: Type](sourceValue: S): Maybe[Double] = convert[Double](sourceValue)
+
+  def convertToDoubleEx[S: Type](sourceValue: S): Double = convertEx[Double](sourceValue)
 }
 
 object Converters {
