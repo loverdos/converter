@@ -16,8 +16,6 @@
 
 package com.ckkloverdos.convert
 
-import com.ckkloverdos.maybe.Maybe
-
 /**
  *
  * @author Christos KK Loverdos <loverdos@gmail.com>.

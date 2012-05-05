@@ -47,4 +47,15 @@ trait ConverterBase {
 //    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, sourceValue.getClass, manifest[T]))
     convertEx[T](sourceValue)
   }
+
+  def convertOpt[T: Type](sourceValue: Any): Option[T] = {
+    try Some(convertEx[T](sourceValue))
+    catch {
+      case e: Error ⇒
+        throw e
+
+      case e: Throwable ⇒
+        None
+    }
+  }
 }
