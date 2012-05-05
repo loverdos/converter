@@ -43,7 +43,7 @@ trait ConverterSelectionStrategy {
   def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter]
 
   def find[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
-//    logger.debug("find(%s, %s)".format(sm, tm))
+    logger.debug("find(%s, %s)".format(sm, tm))
     if(sm == tm) {
       val justIdentityConverter = Converters.justIdentityConverter
 //      logger.debug("Found %s".format(justIdentityConverter))

@@ -41,10 +41,10 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
   override def findCached[S, T](sm: Type[S], tm: Type[T]) = {
     _cache.get((sm, tm)) match {
       case Some(jcv) =>
-//        logger.debug("findCached(%s, %s) => %s".format(sm, tm, jcv))
+        logger.debug("findCached(%s, %s) => %s".format(sm, tm, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
       case None =>
-//        logger.debug("findCached(%s, %s) => %s".format(sm, tm, None))
+        logger.debug("findCached(%s, %s) => %s".format(sm, tm, None))
         NoVal
     }
   }
@@ -52,7 +52,7 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
   def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
     _strictSourceConverters.find(_.get.canConvertType(sm, tm)) match {
       case Some(jcv) =>
-//        logger.debug("findNonCached(%s, %s) => STRICT: %s".format(sm, tm, jcv))
+        logger.debug("findNonCached(%s, %s) => STRICT: %s".format(sm, tm, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
       case None =>
         _nonStrictSourceConverters foreach { case convJ =>
@@ -60,10 +60,10 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
         }
         _nonStrictSourceConverters.find(_.get.canConvertType(sm, tm)) match {
           case Some(jcv) =>
-//            logger.debug("findNonCached(%s, %s) => NON-STRICT: %s".format(sm, tm, jcv))
+            logger.debug("findNonCached(%s, %s) => NON-STRICT: %s".format(sm, tm, jcv))
             jcv.asInstanceOf[Maybe[Converter]]
           case None =>
-//            logger.debug("findNonCached(%s, %s) => %s".format(sm, tm, None))
+            logger.debug("findNonCached(%s, %s) => %s".format(sm, tm, None))
             NoVal
         }
     }
