@@ -16,8 +16,8 @@
 
 package com.ckkloverdos.convert
 
-import com.ckkloverdos.maybe.Maybe
 import org.slf4j.LoggerFactory
+import com.ckkloverdos.maybe.MaybeEither
 
 /**
  * 
@@ -43,7 +43,7 @@ trait ConverterBase {
   @throws(classOf[ConverterException])
   def convertEx[T: Type](sourceValue: Any): T
 
-  def convert[T: Type](sourceValue: Any): Maybe[T] = Maybe {
+  def convert[T: Type](sourceValue: Any): MaybeEither[T] = MaybeEither {
 //    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, sourceValue.getClass, manifest[T]))
     convertEx[T](sourceValue)
   }
@@ -59,49 +59,49 @@ trait ConverterBase {
     }
   }
 
-  def convertToByte[S: Type](sourceValue: S): Maybe[Byte] = convert[Byte](sourceValue)
+  def convertToByte[S: Type](sourceValue: S): MaybeEither[Byte] = convert[Byte](sourceValue)
 
   def convertToByteOpt[S: Type](sourceValue: S): Option[Byte] = convertOpt[Byte](sourceValue)
 
   def convertToByteEx[S: Type](sourceValue: S): Byte = convertEx[Byte](sourceValue)
 
-  def convertToBoolean[S: Type](sourceValue: S): Maybe[Boolean] = convert[Boolean](sourceValue)
+  def convertToBoolean[S: Type](sourceValue: S): MaybeEither[Boolean] = convert[Boolean](sourceValue)
 
   def convertToBooleanOpt[S: Type](sourceValue: S): Option[Boolean] = convertOpt[Boolean](sourceValue)
 
   def convertToBooleanEx[S: Type](sourceValue: S): Boolean = convertEx[Boolean](sourceValue)
 
-  def convertToShort[S: Type](sourceValue: S): Maybe[Short] = convert[Short](sourceValue)
+  def convertToShort[S: Type](sourceValue: S): MaybeEither[Short] = convert[Short](sourceValue)
 
   def convertToShortOpt[S: Type](sourceValue: S): Option[Short] = convertOpt[Short](sourceValue)
 
   def convertToShortEx[S: Type](sourceValue: S): Short = convertEx[Short](sourceValue)
 
-  def convertToChar[S: Type](sourceValue: S): Maybe[Char] = convert[Char](sourceValue)
+  def convertToChar[S: Type](sourceValue: S): MaybeEither[Char] = convert[Char](sourceValue)
 
   def convertToCharOpt[S: Type](sourceValue: S): Option[Char] = convertOpt[Char](sourceValue)
 
   def convertToCharEx[S: Type](sourceValue: S): Char = convertEx[Char](sourceValue)
 
-  def convertToInt[S: Type](sourceValue: S): Maybe[Int] = convert[Int](sourceValue)
+  def convertToInt[S: Type](sourceValue: S): MaybeEither[Int] = convert[Int](sourceValue)
 
   def convertToIntOpt[S: Type](sourceValue: S): Option[Int] = convertOpt[Int](sourceValue)
 
   def convertToIntEx[S: Type](sourceValue: S): Int = convertEx[Int](sourceValue)
 
-  def convertToLong[S: Type](sourceValue: S): Maybe[Long] = convert[Long](sourceValue)
+  def convertToLong[S: Type](sourceValue: S): MaybeEither[Long] = convert[Long](sourceValue)
 
   def convertToLongOpt[S: Type](sourceValue: S): Option[Long] = convertOpt[Long](sourceValue)
 
   def convertToLongEx[S: Type](sourceValue: S): Long = convertEx[Long](sourceValue)
 
-  def convertToFloat[S: Type](sourceValue: S): Maybe[Float] = convert[Float](sourceValue)
+  def convertToFloat[S: Type](sourceValue: S): MaybeEither[Float] = convert[Float](sourceValue)
 
   def convertToFloatOpt[S: Type](sourceValue: S): Option[Float] = convertOpt[Float](sourceValue)
 
   def convertToFloatEx[S: Type](sourceValue: S): Float = convertEx[Float](sourceValue)
 
-  def convertToDouble[S: Type](sourceValue: S): Maybe[Double] = convert[Double](sourceValue)
+  def convertToDouble[S: Type](sourceValue: S): MaybeEither[Double] = convert[Double](sourceValue)
 
   def convertToDoubleOpt[S: Type](sourceValue: S): Option[Double] = convertOpt[Double](sourceValue)
 
