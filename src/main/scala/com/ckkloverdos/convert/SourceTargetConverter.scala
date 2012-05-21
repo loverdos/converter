@@ -112,18 +112,43 @@ object SourceTargetConverter {
   }
 }
 
-abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type]extends Converter {
+abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type] extends Converter {
   final def canConvertType[S: Type, T: Type]: Boolean = {
     SourceTargetConverter.canConvertWithStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
   final def isStrictSource = true
+
+  /**
+   * Convert or throw an exception.
+   *
+   * This is a low-level function.
+   */
+  @throws(classOf[ConverterException])
+  final def convertEx[T: Type](sourceValue: Any) = {
+    convertEx_(sourceValue.asInstanceOf[SS]).asInstanceOf[T]
+  }
+
+  @throws(classOf[ConverterException])
+  protected def convertEx_(sourceValue: SS): TT
 }
 
-abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type]extends Converter {
+abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type] extends Converter {
   final def canConvertType[S: Type, T: Type]: Boolean = {
     SourceTargetConverter.canConvertWithNonStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
   final def isStrictSource = false
+
+  /**
+   * Convert or throw an exception.
+   *
+   * This is a low-level function.
+   */
+  final def convertEx[T: Type](sourceValue: Any) = {
+    convertEx_(sourceValue.asInstanceOf[SS]).asInstanceOf[T]
+  }
+
+  protected def convertEx_(sourceValue: SS): TT
+
 }
