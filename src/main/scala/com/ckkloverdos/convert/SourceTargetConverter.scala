@@ -24,19 +24,22 @@ class SourceTargetConverter[SS, TT](
     val sourceType: Type[SS],
     val targetType: Type[TT],
     val isStrictSource: Boolean,
-    val function: SS => TT)
-  extends Converter {
+    val function: SS => TT,
+    val theHint: AnyRef = EmptyHint
+) extends Converter {
 
-  def canConvertType[S: Type, T: Type]: Boolean = {
-    val sm = typeOf[S]
-    val tm = typeOf[T]
+  def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = {
+    (theHint == hint) && {
+      val sm = typeOf[S]
+      val tm = typeOf[T]
 
-//    logger.debug("canConvertType(%s, %s), sourceType=%s, targetType=%s".format(sm, tm, sourceType, targetType))
+      //    logger.debug("canConvertType(%s, %s), sourceType=%s, targetType=%s".format(sm, tm, sourceType, targetType))
 
-    if(isStrictSource)
-      canConvertStrictSource(sm, tm)
-    else
-      canConvertNonStrictSource(sm, tm)
+      if(isStrictSource)
+        canConvertStrictSource(sm, tm)
+      else
+        canConvertNonStrictSource(sm, tm)
+    }
   }
 
   private[this] def canConvertStrictSource(sm: Type[_], tm: Type[_]) = {
@@ -59,23 +62,31 @@ class SourceTargetConverter[SS, TT](
 
 
   @throws(classOf[ConverterException])
-  def convertEx[T: Type](sourceValue: Any): T = {
+  def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): T = {
     val tm = typeOf[T]
-    if(targetType != tm) {
-      ConverterException("Unexpeced target type %s. It should have been %s".format(tm, targetType))
-    }
-    try function(sourceType.erasure.cast(sourceValue).asInstanceOf[SS]).asInstanceOf[T]
-    catch {
-      case e: ClassCastException ⇒
-        val msg = "tm=%s, targetType=%s, sourceType=%s".format(tm, targetType, sourceType)
-        ConverterException(e, "[%s] Unexpected failure converting %s -> %s for value %s".format(msg, sourceValue.getClass, tm.erasure, sourceValue))
-      case e: Exception ⇒
-        ConverterException(e, "Error converting %s -> %s for value %s".format(sourceValue.getClass, tm, sourceValue))
+    if(theHint == hint) {
+      if(targetType != tm) {
+        ConverterException("Unexpeced target type %s. It should have been %s".format(tm, targetType))
+      }
+      try function(sourceType.erasure.cast(sourceValue).asInstanceOf[SS]).asInstanceOf[T]
+      catch {
+        case e: Error ⇒
+          throw e
+
+        case e: ClassCastException ⇒
+          val msg = "tm=%s, targetType=%s, sourceType=%s".format(tm, targetType, sourceType)
+          ConverterException(e, "[%s] Unexpected failure converting %s -> %s for value %s".format(msg, sourceValue.getClass, tm.erasure, sourceValue))
+
+        case e: Exception ⇒
+          ConverterException(e, "Error converting %s -> %s for value %s".format(sourceValue.getClass, tm, sourceValue))
+      }
+    } else {
+      ConverterException("Error converting %s -> %s for value %s. Uknown hint %s".format(sourceValue.getClass, tm, sourceValue, hint))
     }
   }
 
   override def toString() =
-    "STConverter(" + List(sourceType, targetType, isStrictSource, function).mkString(",") + ")"
+    "STConverter(" + List(sourceType, targetType, isStrictSource, function, theHint).mkString(",") + ")"
 }
 
 object SourceTargetConverter {
@@ -112,8 +123,9 @@ object SourceTargetConverter {
   }
 }
 
-abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type] extends Converter {
-  final def canConvertType[S: Type, T: Type]: Boolean = {
+abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type](theHint: AnyRef = EmptyHint) extends Converter {
+  final def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = {
+    (theHint == hint) &&
     SourceTargetConverter.canConvertWithStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
@@ -125,16 +137,17 @@ abstract class StrictSourceConverterSkeleton[SS: Type, TT: Type] extends Convert
    * This is a low-level function.
    */
   @throws(classOf[ConverterException])
-  final def convertEx[T: Type](sourceValue: Any) = {
-    convertEx_(sourceValue.asInstanceOf[SS]).asInstanceOf[T]
+  final def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint) = {
+    convertEx_(sourceValue.asInstanceOf[SS], hint).asInstanceOf[T]
   }
 
   @throws(classOf[ConverterException])
-  protected def convertEx_(sourceValue: SS): TT
+  protected def convertEx_(sourceValue: SS, hint: AnyRef = EmptyHint): TT
 }
 
-abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type] extends Converter {
-  final def canConvertType[S: Type, T: Type]: Boolean = {
+abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type](theHint: AnyRef = EmptyHint) extends Converter {
+  final def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = {
+    (theHint == hint) &&
     SourceTargetConverter.canConvertWithNonStrictSource(typeOf[SS], typeOf[TT], typeOf[S], typeOf[T])
   }
 
@@ -145,10 +158,10 @@ abstract class NonStrictSourceConverterSkeleton[SS: Type, TT: Type] extends Conv
    *
    * This is a low-level function.
    */
-  final def convertEx[T: Type](sourceValue: Any) = {
-    convertEx_(sourceValue.asInstanceOf[SS]).asInstanceOf[T]
+  final def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint) = {
+    convertEx_(sourceValue.asInstanceOf[SS], hint).asInstanceOf[T]
   }
 
-  protected def convertEx_(sourceValue: SS): TT
+  protected def convertEx_(sourceValue: SS, hint: AnyRef = EmptyHint): TT
 
 }

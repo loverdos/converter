@@ -28,18 +28,18 @@ import com.ckkloverdos.maybe.{NoVal, Maybe, Just}
 final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Converter]) extends ConverterSelectionStrategy {
   private[this] val _lock = new ReentrantLock()
   private[this] val (_strictSourceConverters, _nonStrictSourceConverters) = converters.map(Just(_)).partition(_.get.isStrictSource)
-  private[this] var _cache: Map[(Manifest[_], Manifest[_]), Just[Converter]] = Map()
+  private[this] var _cache: Map[(Manifest[_], Manifest[_], AnyRef), Just[Converter]] = Map()
 
   def isCaching = true
 
-  def addToCache(sm: Type[_], tm: Type[_], cv: Converter) = {
+  def addToCache(sm: Type[_], tm: Type[_], hint: AnyRef, cv: Converter) = {
     lock(_lock) {
-      _cache += ((sm, tm) -> Just(cv))
+      _cache += ((sm, tm, hint) -> Just(cv))
     }
   }
 
-  override def findCached[S, T](sm: Type[S], tm: Type[T]) = {
-    _cache.get((sm, tm)) match {
+  override def findCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef) = {
+    _cache.get((sm, tm, hint)) match {
       case Some(jcv) =>
         logger.debug("findCached(%s, %s) => %s".format(sm, tm, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
@@ -49,21 +49,21 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
     }
   }
 
-  def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
-    _strictSourceConverters.find(_.get.canConvertType(sm, tm)) match {
+  def findNonCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef): Maybe[Converter] = {
+    _strictSourceConverters.find(_.get.canConvertType(sm, tm, hint)) match {
       case Some(jcv) =>
-        logger.debug("findNonCached(%s, %s) => STRICT: %s".format(sm, tm, jcv))
+        logger.debug("findNonCached(%s, %s, %s) => STRICT: %s".format(sm, tm, hint, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
       case None =>
         _nonStrictSourceConverters foreach { case convJ =>
           val conv = convJ.get
         }
-        _nonStrictSourceConverters.find(_.get.canConvertType(sm, tm)) match {
+        _nonStrictSourceConverters.find(_.get.canConvertType(sm, tm, hint)) match {
           case Some(jcv) =>
-            logger.debug("findNonCached(%s, %s) => NON-STRICT: %s".format(sm, tm, jcv))
+            logger.debug("findNonCached(%s, %s, %s) => NON-STRICT: %s".format(sm, tm, hint, jcv))
             jcv.asInstanceOf[Maybe[Converter]]
           case None =>
-            logger.debug("findNonCached(%s, %s) => %s".format(sm, tm, None))
+            logger.debug("findNonCached(%s, %s, %s) => %s".format(sm, tm, hint, None))
             NoVal
         }
     }

@@ -25,12 +25,15 @@ package com.ckkloverdos.convert
 object IdentityConverter extends Converter {
   def isStrictSource = false
 
-  def canConvertType[S: Type, T: Type]: Boolean = {
+  /**
+   * Ignores the `hint`.
+   */
+  def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = {
     typeOf[S] == typeOf[T]
   }
 
   @throws(classOf[ConverterException])
-  def convertEx[T: Type](sourceValue: Any): T = {
+  def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): T = {
     val tm = typeOf[T]
     try sourceValue.asInstanceOf[T]
     catch {

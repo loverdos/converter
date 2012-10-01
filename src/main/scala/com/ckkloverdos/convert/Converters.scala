@@ -25,31 +25,34 @@ import com.ckkloverdos.maybe._
  * @author Christos KK Loverdos <loverdos@gmail.com>.
  */
 class Converters(selector: ConverterSelectionStrategy) extends ConverterBase {
-  def canConvertType[S: Type, T: Type]: Boolean = selector.canConvertType[S, T]
+  def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = selector.canConvertType[S, T](hint)
 
-  def findConverter[S : Type, T : Type]: Maybe[Converter] = {
+  def findConverter[S : Type, T : Type](hint: AnyRef = EmptyHint): Maybe[Converter] = {
     val sm = typeOf[S]
     val tm = typeOf[T]
 //    logger.debug("findConverter(%s, %s)".format(sm, tm))
-    selector.find(sm, tm)
+    selector.find(sm, tm, hint)
   }
 
   /**
    * Converts a value or throws an exception if the value cannot be converted.
    */
   @throws(classOf[ConverterException])
-  def convertEx[T: Type](sourceValue: Any): T = {
+  def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): T = {
     val sm = typeOfAny(sourceValue)
     val tm = typeOf[T]
 //    logger.debug("[1] Converters::convertEx(%s: %s)(tm=%s)".format(sourceValue, if(null eq sourceValue.asInstanceOf[AnyRef]) "Null" else sourceValue.getClass, tm))
 //    logger.debug("[2] Converters::convertEx(%s: %s): %s".format(sourceValue, sm, tm))
-    findConverter(sm, tm) match {
+    findConverter(sm, tm, hint) match {
       case Just(cv) ⇒
         try {
 //          logger.debug("Converters::convertEx:: found %s".format(cv))
-          cv.convertEx[T](sourceValue)
+          cv.convertEx[T](sourceValue, hint)
         } catch {
-          case e: Exception =>
+          case e: Error ⇒
+            throw e
+
+          case e: Exception ⇒
             val errMsg = "Error converting %s -> %s for value %s".format(sm, tm, sourceValue)
 //            logger.error("Converters::convertEx:: " + errMsg)
             ConverterException(e, errMsg)

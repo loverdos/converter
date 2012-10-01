@@ -27,13 +27,13 @@ import com.ckkloverdos.maybe.MaybeEither
 trait ConverterBase {
   protected val logger = LoggerFactory.getLogger(getClass)
   
-  def canConvertValueToType[S: Type, T: Type](sourceValue: S): Boolean =
-    canConvertType[S, T]
+  def canConvertValueToType[S: Type, T: Type](sourceValue: S, hint: AnyRef = EmptyHint): Boolean =
+    canConvertType[S, T](hint)
 
-  def canConvertValueToValue[S: Type, T: Type](sourceValue: S, targetValue: T): Boolean =
-    canConvertType[S, T]
+  def canConvertValueToValue[S: Type, T: Type](sourceValue: S, targetValue: T, hint: AnyRef = EmptyHint): Boolean =
+    canConvertType[S, T](hint)
 
-  def canConvertType[S: Type, T: Type]: Boolean
+  def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean
 
   /**
    * Convert or throw an exception.
@@ -41,15 +41,15 @@ trait ConverterBase {
    * This is a low-level function.
    */
   @throws(classOf[ConverterException])
-  def convertEx[T: Type](sourceValue: Any): T
+  def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): T
 
-  def convert[T: Type](sourceValue: Any): MaybeEither[T] = MaybeEither {
+  def convert[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): MaybeEither[T] = MaybeEither {
 //    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, sourceValue.getClass, manifest[T]))
-    convertEx[T](sourceValue)
+    convertEx[T](sourceValue, hint)
   }
 
-  def convertOpt[T: Type](sourceValue: Any): Option[T] = {
-    try Some(convertEx[T](sourceValue))
+  def convertOpt[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): Option[T] = {
+    try Some(convertEx[T](sourceValue, hint))
     catch {
       case e: Error ⇒
         throw e
@@ -59,51 +59,51 @@ trait ConverterBase {
     }
   }
 
-  def convertToByte[S: Type](sourceValue: S): MaybeEither[Byte] = convert[Byte](sourceValue)
+  def convertToByte[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Byte] = convert[Byte](sourceValue, hint)
 
-  def convertToByteOpt[S: Type](sourceValue: S): Option[Byte] = convertOpt[Byte](sourceValue)
+  def convertToByteOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Byte] = convertOpt[Byte](sourceValue, hint)
 
-  def convertToByteEx[S: Type](sourceValue: S): Byte = convertEx[Byte](sourceValue)
+  def convertToByteEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Byte = convertEx[Byte](sourceValue, hint)
 
-  def convertToBoolean[S: Type](sourceValue: S): MaybeEither[Boolean] = convert[Boolean](sourceValue)
+  def convertToBoolean[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Boolean] = convert[Boolean](sourceValue, hint)
 
-  def convertToBooleanOpt[S: Type](sourceValue: S): Option[Boolean] = convertOpt[Boolean](sourceValue)
+  def convertToBooleanOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Boolean] = convertOpt[Boolean](sourceValue, hint)
 
-  def convertToBooleanEx[S: Type](sourceValue: S): Boolean = convertEx[Boolean](sourceValue)
+  def convertToBooleanEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Boolean = convertEx[Boolean](sourceValue, hint)
 
-  def convertToShort[S: Type](sourceValue: S): MaybeEither[Short] = convert[Short](sourceValue)
+  def convertToShort[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Short] = convert[Short](sourceValue, hint)
 
-  def convertToShortOpt[S: Type](sourceValue: S): Option[Short] = convertOpt[Short](sourceValue)
+  def convertToShortOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Short] = convertOpt[Short](sourceValue, hint)
 
-  def convertToShortEx[S: Type](sourceValue: S): Short = convertEx[Short](sourceValue)
+  def convertToShortEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Short = convertEx[Short](sourceValue, hint)
 
-  def convertToChar[S: Type](sourceValue: S): MaybeEither[Char] = convert[Char](sourceValue)
+  def convertToChar[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Char] = convert[Char](sourceValue, hint)
 
-  def convertToCharOpt[S: Type](sourceValue: S): Option[Char] = convertOpt[Char](sourceValue)
+  def convertToCharOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Char] = convertOpt[Char](sourceValue, hint)
 
-  def convertToCharEx[S: Type](sourceValue: S): Char = convertEx[Char](sourceValue)
+  def convertToCharEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Char = convertEx[Char](sourceValue, hint)
 
-  def convertToInt[S: Type](sourceValue: S): MaybeEither[Int] = convert[Int](sourceValue)
+  def convertToInt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Int] = convert[Int](sourceValue, hint)
 
-  def convertToIntOpt[S: Type](sourceValue: S): Option[Int] = convertOpt[Int](sourceValue)
+  def convertToIntOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Int] = convertOpt[Int](sourceValue, hint)
 
-  def convertToIntEx[S: Type](sourceValue: S): Int = convertEx[Int](sourceValue)
+  def convertToIntEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Int = convertEx[Int](sourceValue, hint)
 
-  def convertToLong[S: Type](sourceValue: S): MaybeEither[Long] = convert[Long](sourceValue)
+  def convertToLong[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Long] = convert[Long](sourceValue, hint)
 
-  def convertToLongOpt[S: Type](sourceValue: S): Option[Long] = convertOpt[Long](sourceValue)
+  def convertToLongOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Long] = convertOpt[Long](sourceValue, hint)
 
-  def convertToLongEx[S: Type](sourceValue: S): Long = convertEx[Long](sourceValue)
+  def convertToLongEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Long = convertEx[Long](sourceValue, hint)
 
-  def convertToFloat[S: Type](sourceValue: S): MaybeEither[Float] = convert[Float](sourceValue)
+  def convertToFloat[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Float] = convert[Float](sourceValue, hint)
 
-  def convertToFloatOpt[S: Type](sourceValue: S): Option[Float] = convertOpt[Float](sourceValue)
+  def convertToFloatOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Float] = convertOpt[Float](sourceValue, hint)
 
-  def convertToFloatEx[S: Type](sourceValue: S): Float = convertEx[Float](sourceValue)
+  def convertToFloatEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Float = convertEx[Float](sourceValue, hint)
 
-  def convertToDouble[S: Type](sourceValue: S): MaybeEither[Double] = convert[Double](sourceValue)
+  def convertToDouble[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): MaybeEither[Double] = convert[Double](sourceValue, hint)
 
-  def convertToDoubleOpt[S: Type](sourceValue: S): Option[Double] = convertOpt[Double](sourceValue)
+  def convertToDoubleOpt[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Option[Double] = convertOpt[Double](sourceValue, hint)
 
-  def convertToDoubleEx[S: Type](sourceValue: S): Double = convertEx[Double](sourceValue)
+  def convertToDoubleEx[S: Type](sourceValue: S, hint: AnyRef = EmptyHint): Double = convertEx[Double](sourceValue, hint)
 }

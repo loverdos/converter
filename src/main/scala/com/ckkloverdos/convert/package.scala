@@ -18,6 +18,8 @@ package com.ckkloverdos
 
 
 package object convert {
+  final val EmptyHint: AnyRef = new java.lang.Object
+
   type Type[A] = Manifest[A]
 
   @inline

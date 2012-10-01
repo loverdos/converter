@@ -32,30 +32,30 @@ trait ConverterSelectionStrategy {
 
   def isCaching: Boolean
 
-  def canConvertType[S: Type, T: Type]: Boolean = {
-    this.find(typeOf[S], typeOf[T]).isJust
+  def canConvertType[S: Type, T: Type](hint: AnyRef): Boolean = {
+    this.find(typeOf[S], typeOf[T], hint).isJust
   }
 
-  def shouldCache(sm: Type[_], tm: Type[_], cv: Converter): Boolean = isCaching
+  def shouldCache(sm: Type[_], tm: Type[_], hint: AnyRef, cv: Converter): Boolean = isCaching
 
-  def findCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter]
+  def findCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef): Maybe[Converter]
 
-  def findNonCached[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter]
+  def findNonCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef): Maybe[Converter]
 
-  def find[S, T](sm: Type[S], tm: Type[T]): Maybe[Converter] = {
+  def find[S, T](sm: Type[S], tm: Type[T], hint: AnyRef): Maybe[Converter] = {
     logger.debug("find(%s, %s)".format(sm, tm))
     if(sm == tm) {
       val justIdentityConverter = Converters.justIdentityConverter
 //      logger.debug("Found %s".format(justIdentityConverter))
       justIdentityConverter
     } else if(isCaching) {
-      findCached[S, T](sm, tm) match {
+      findCached[S, T](sm, tm, hint) match {
         case j@Just(cv) =>
           j
         case NoVal =>
-          findNonCached[S, T](sm, tm) match {
+          findNonCached[S, T](sm, tm, hint) match {
             case j@Just(cv) =>
-              if(shouldCache(sm, tm, cv)) addToCache(sm, tm, cv)
+              if(shouldCache(sm, tm, hint, cv)) addToCache(sm, tm, hint, cv)
               j
             case other =>
               other
@@ -64,9 +64,9 @@ trait ConverterSelectionStrategy {
           failed
       }
     } else {
-      findNonCached[S, T](sm, tm)
+      findNonCached[S, T](sm, tm, hint)
     }
   }
 
-  def addToCache(sm: Type[_], tm: Type[_], cv: Converter): Unit
+  def addToCache(sm: Type[_], tm: Type[_], hint: AnyRef, cv: Converter): Unit
 }
