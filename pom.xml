@@ -77,6 +77,7 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
       <version>${scala.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.ckkloverdos</groupId>
@@ -141,8 +142,9 @@
       <plugin>
         <groupId>net.alchim31.maven</groupId>
         <artifactId>scala-maven-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
         <configuration>
+          <recompileMode>incremental</recompileMode>
           <scalaVersion>${scala.version}</scalaVersion>
           <charset>${project.build.sourceEncoding}</charset>
           <args>
