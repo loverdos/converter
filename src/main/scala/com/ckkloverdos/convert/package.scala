@@ -18,7 +18,10 @@ package com.ckkloverdos
 
 
 package object convert {
-  final val EmptyHint: AnyRef = new java.lang.Object
+  final val EmptyHint: AnyRef = new java.lang.Object {
+    override def equals(obj: Any) = obj.asInstanceOf[AnyRef] eq this
+    override def toString = "EmptyHint"
+  }
 
   type Type[A] = Manifest[A]
 
