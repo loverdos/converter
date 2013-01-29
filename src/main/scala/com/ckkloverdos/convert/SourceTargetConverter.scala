@@ -29,11 +29,12 @@ class SourceTargetConverter[SS, TT](
 ) extends Converter {
 
   def canConvertType[S: Type, T: Type](hint: AnyRef = EmptyHint): Boolean = {
+//    logger.debug("canConvertType(): theHint = %s, hint = %s".format(theHint, hint))
     (theHint == hint) && {
       val sm = typeOf[S]
       val tm = typeOf[T]
 
-      //    logger.debug("canConvertType(%s, %s), sourceType=%s, targetType=%s".format(sm, tm, sourceType, targetType))
+//      logger.debug("canConvertType(%s, %s), sourceType=%s, targetType=%s".format(sm, tm, sourceType, targetType))
 
       if(isStrictSource)
         canConvertStrictSource(sm, tm)

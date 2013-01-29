@@ -19,7 +19,7 @@ package com.ckkloverdos.convert
 import org.junit.Assert
 import org.junit.Test
 import Assert.{assertEquals, assertTrue, fail}
-import com.ckkloverdos.maybe.{Maybe, Just, NoVal}
+import com.ckkloverdos.maybe.{Failed, Maybe, Just, NoVal}
 import java.nio.CharBuffer
 
 /**
@@ -74,6 +74,7 @@ class ConvertersTest {
   def testNullToNoVal: Unit = {
     val registry = new StdConvertersBuilder().register[AnyRef, Maybe[AnyRef]](true)((x) => Maybe(x)).build
     val value = registry.convert[Maybe[AnyRef]](null)
+    value.throwMe()
     assertEquals(Just(NoVal), value)
   }
 

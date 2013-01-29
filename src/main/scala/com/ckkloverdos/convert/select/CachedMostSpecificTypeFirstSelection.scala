@@ -34,6 +34,7 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
 
   def addToCache(sm: Type[_], tm: Type[_], hint: AnyRef, cv: Converter) = {
     lock(_lock) {
+//      logger.debug("addToCache(%s, %s, %s, %s)".format(sm, tm, hint, cv))
       _cache += ((sm, tm, hint) -> Just(cv))
     }
   }
@@ -41,29 +42,31 @@ final class CachedMostSpecificTypeFirstSelection(converters: Traversable[Convert
   override def findCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef) = {
     _cache.get((sm, tm, hint)) match {
       case Some(jcv) =>
-        logger.debug("findCached(%s, %s) => %s".format(sm, tm, jcv))
+//        logger.debug("findCached(%s, %s, %s) => %s".format(sm, tm, hint, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
       case None =>
-        logger.debug("findCached(%s, %s) => %s".format(sm, tm, None))
+//        logger.debug("findCached(%s, %s, %s) => %s".format(sm, tm, hint, None))
         NoVal
     }
   }
 
   def findNonCached[S, T](sm: Type[S], tm: Type[T], hint: AnyRef): Maybe[Converter] = {
-    _strictSourceConverters.find(_.get.canConvertType(sm, tm, hint)) match {
+    _strictSourceConverters.find(_.get.canConvertType(hint)(sm, tm)) match {
       case Some(jcv) =>
-        logger.debug("findNonCached(%s, %s, %s) => STRICT: %s".format(sm, tm, hint, jcv))
+//        logger.debug("findNonCached(%s, %s, %s) => STRICT: %s".format(sm, tm, hint, jcv))
         jcv.asInstanceOf[Maybe[Converter]]
       case None =>
-        _nonStrictSourceConverters foreach { case convJ =>
-          val conv = convJ.get
-        }
-        _nonStrictSourceConverters.find(_.get.canConvertType(sm, tm, hint)) match {
+        _nonStrictSourceConverters.find { converterJust ⇒
+          val converter = converterJust.get
+          val canConvert = converter.canConvertType(hint)(sm, tm)
+//          logger.debug("%s: canConvertType(%s, %s, %s) by %s".format(canConvert, sm, tm, hint, converter))
+          canConvert
+        } match {
           case Some(jcv) =>
-            logger.debug("findNonCached(%s, %s, %s) => NON-STRICT: %s".format(sm, tm, hint, jcv))
+//            logger.debug("findNonCached(%s, %s, %s) => NON-STRICT: %s".format(sm, tm, hint, jcv))
             jcv.asInstanceOf[Maybe[Converter]]
           case None =>
-            logger.debug("findNonCached(%s, %s, %s) => %s".format(sm, tm, hint, None))
+//            logger.debug("findNonCached(%s, %s, %s) => %s".format(sm, tm, hint, None))
             NoVal
         }
     }

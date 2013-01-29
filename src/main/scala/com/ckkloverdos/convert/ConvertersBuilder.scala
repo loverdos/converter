@@ -35,13 +35,13 @@ class ConvertersBuilder {
 
   def registerConverter(converter: Converter): this.type = {
     lock(_lock) {
-      logger.trace("Adding converter %s".format(converter))
+//      logger.debug("Adding converter %s".format(converter))
       _converters = converter +: _converters
     }
     this
   }
 
-  def +=[S: Type, T: Type](cw: Converter): this.type = {
+  def +=(cw: Converter): this.type = {
     this.registerConverter(cw)
   }
 
@@ -63,7 +63,10 @@ class ConvertersBuilder {
   }
 
   def register[S: Type, T: Type](strictSource: Boolean)(f: (S) => T): this.type = {
-    registerST(typeOf[S], typeOf[T], strictSource)(f)
+    val sm = typeOf[S]
+    val tm = typeOf[T]
+//    logger.debug("register(%s, %s, %s)".format(sm, tm, strictSource))
+    registerST(sm, tm, strictSource)(f)
   }
 
   def build: Converters =

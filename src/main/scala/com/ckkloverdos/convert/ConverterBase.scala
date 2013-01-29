@@ -44,7 +44,7 @@ trait ConverterBase {
   def convertEx[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): T
 
   def convert[T: Type](sourceValue: Any, hint: AnyRef = EmptyHint): MaybeEither[T] = MaybeEither {
-//    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, sourceValue.getClass, manifest[T]))
+//    logger.debug("ConverterBase::convert(%s: %s): %s".format(sourceValue, typeOfAny(sourceValue), manifest[T]))
     convertEx[T](sourceValue, hint)
   }
 
