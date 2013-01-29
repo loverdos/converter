@@ -26,7 +26,7 @@
 
   <groupId>com.ckkloverdos</groupId>
   <artifactId>converter</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Converter</name>
@@ -59,7 +59,7 @@
     <url>https://loverdos@github.com/loverdos/converter</url>
     <connection>scm:git:https://loverdos@github.com/loverdos/converter.git</connection>
     <developerConnection>scm:git:git@github.com:loverdos/converter.git</developerConnection>
-    <tag>v0.6.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
